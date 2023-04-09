@@ -2,7 +2,7 @@ const notes = require('express').Router();
 const DB = './db/db.json';
 
 const uuid = require('../helpers/uuid');
-const { readFromFile, readAndAppend } = require('../helpers/files.js');
+const { readFromFile, readAndAppend, writeToFile } = require('../helpers/files.js');
 
 
 notes.get('/', (req, res) => {
@@ -36,11 +36,22 @@ notes.post('/', (req, res) => {
 notes.delete('/:id', (req, res) => {
     readFromFile(DB).then((data) => {
         const { id } = req.params;
+        if(id) { 
+            let parsedData = JSON.parse(data);
+            const indexOfNote = parsedData.findIndex(note => note.id === id );
+        
+            parsedData.splice(indexOfNote, 1);
+            writeToFile('./db/db.json', parsedData);
 
-        let parsedData = JSON.parse(data);
+            const response = {
+                status: 'success',
+            }
+            console.info(`Note with ID: ${id} removed ❌`)
+            res.json(response);
+        } else {
+            res.json('Error in removing the note.')
+        }
 
-        const indexOfNote = parsedData.findIndex(note => note.id === id );
-        console.log(indexOfNote)
     })
 
 
