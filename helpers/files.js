@@ -3,6 +3,11 @@ const util = require('util');
 
 const readFromFile = util.promisify(fs.readFile);
 
+const writeToFile = (file, content) => {
+    fs.writeFile(file, JSON.stringify(content, null, 4), (err) => 
+    err ? console.error(err) : console.info('Database file updated. ✅'));
+}
+
 const readAndAppend = (content, file) => {
     fs.readFile(file, 'utf8', (err, data) => {
         if(err) {
@@ -11,10 +16,9 @@ const readAndAppend = (content, file) => {
             const parsedData = JSON.parse(data);
             parsedData.push(content);
 
-            fs.writeFile(file, JSON.stringify(parsedData, null, 4), (err) => 
-            err ? console.error(err) : console.info('DB updated.'));
+            writeToFile(file, parsedData);
         }
     })
 }
 
-module.exports = { readFromFile, readAndAppend };
+module.exports = { readFromFile, readAndAppend, writeToFile };
